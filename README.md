@@ -51,6 +51,14 @@ pipeline:
   close.
 - Songs are ranked by sorting all scores descending and taking the top `k`.
 
+**Expected bias (before evaluating results):** weighting genre highest (35%) means
+this recipe will likely over-prioritize genre over mood — a song in the right genre
+but wrong mood should still usually outrank a song in the wrong genre but right mood.
+I expect this to under-serve users whose taste is more mood-driven than genre-driven
+(e.g. someone who wants "anything chill" regardless of genre), and to make
+low-representation genres in the catalog look artificially "well matched" simply
+because there's little else to rank against them.
+
 ---
 
 ## Getting Started
