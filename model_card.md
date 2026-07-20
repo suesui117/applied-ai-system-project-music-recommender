@@ -17,6 +17,12 @@ simulation**, not a production system — it is meant to demonstrate the
 input-data → scoring → ranking pipeline behind real recommenders, not to serve real
 listeners.
 
+**Not intended for:** real listeners or a real music app, catalogs bigger than a
+handful of songs (it re-scores every song on every request, so it won't scale),
+decisions where a wrong or biased recommendation has real consequences, or as a
+stand-in for how any actual commercial recommender works — this is a simplified
+teaching model, not a reverse-engineering of Spotify or YouTube.
+
 ---
 
 ## 3. How the Model Works
@@ -251,13 +257,30 @@ trade-off the weights encode.
 
 ## 9. Personal Reflection
 
-Implementing the scoring function made it obvious that a "recommendation" is really
-just an arithmetic decision dressed up in music vocabulary — the model doesn't know
-what hip-hop or calm music *sounds* like, it just compares tags and numbers I chose
-to weight in a particular order. The most interesting discovery was how much the
-choice of *which* features to include (and which, like tempo and valence, to leave
-unused) quietly shapes results just as much as the weights themselves. It changed
-how I think about real recommendation apps: what feels like the algorithm "getting"
-my taste is often just a well-tuned formula over a handful of catalog attributes,
-and the boundaries of that formula (what data it has, what it ignores) are exactly
-where its blind spots and biases live.
+The biggest learning moment was seeing that a "recommendation" is just an
+arithmetic decision wearing music vocabulary. The program doesn't know what
+hip-hop or calm music sounds like — it compares a few tags and numbers using
+weights I picked, and whichever song adds up to the highest number wins. Once I
+saw that plainly, a lot of what feels mysterious about music apps stopped feeling
+mysterious.
+
+I had help writing and organizing the code, but I still had to check everything
+myself: I ran the tests, read through the scoring math line by line to make sure
+the weights actually added up the way I intended, and manually worked out a few
+songs' scores by hand to confirm the numbers matched what the program printed.
+The one place I had to be most careful was the adversarial test — it was tempting
+to accept the first ranking that came out, but I had to sit with it and ask
+whether the top result actually made sense for a real person, not just whether
+the math ran without errors.
+
+What surprised me most is how convincing a really simple system can feel. Watching
+the acoustic listener's list and the EDM listener's list come out completely
+different, just from changing four numbers, felt like the program "understood"
+something about each listener — even though underneath it's just one formula
+applied twice with different targets.
+
+If I kept working on this, I'd want to add real listening feedback so the system
+could improve instead of staying frozen, let it recognize genres or moods that are
+similar but not identical (like "calm" and "chill"), and grow the song list enough
+that every genre gets a fair, well-supported ranking instead of just one or two
+songs standing in for a whole style of music.
