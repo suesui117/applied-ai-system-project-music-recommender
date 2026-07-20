@@ -151,6 +151,42 @@ Because: matches your preferred genre (edm); matches your preferred mood (energe
 
 ---
 
+## Bonus: Diversity Penalty
+
+`recommend_songs()` and `Recommender.recommend()` now build the top-k list greedily
+instead of with one static sort: after each pick, any remaining song by an
+already-picked artist gets a `-0.15` penalty before the next pick is chosen. This
+only affects *ranking* (which songs make the cut and in what order) — it never
+touches the underlying `score_song()` fit calculation. Genre is deliberately **not**
+penalized: doing so would fight the user's own genre preference, since matching
+genre is the whole point of that part of the score. The penalty can be turned off
+with `diversify=False` for comparison.
+
+Example — a "Chill Lofi" profile where one artist (LoRoom) has two matching songs:
+
+```text
+--- WITHOUT diversity penalty ---
+Library Rain (Paper Lanterns) - 0.98
+Midnight Coding (LoRoom) - 0.94
+Focus Flow (LoRoom) - 0.70
+Spacewalk Thoughts (Orbit Bloom) - 0.62
+Basement Cypher (Q the Verse) - 0.49
+
+--- WITH diversity penalty ---
+Library Rain (Paper Lanterns) - 0.98
+Midnight Coding (LoRoom) - 0.94
+Spacewalk Thoughts (Orbit Bloom) - 0.62
+Focus Flow (LoRoom) - 0.55 | diversity penalty applied (-0.15 repeat artist)
+Basement Cypher (Q the Verse) - 0.49
+```
+
+LoRoom's second song ("Focus Flow") drops from position 3 to position 4, letting a
+different artist ("Spacewalk Thoughts") move up — the top result no longer looks
+like "one artist's discography" when a single artist happens to fit the profile
+well twice.
+
+---
+
 ## Experiments You Tried
 
 I ran the recommender against three distinct profiles (see full output above):

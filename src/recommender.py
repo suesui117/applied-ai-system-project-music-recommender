@@ -9,6 +9,13 @@ MOOD_WEIGHT = 0.25
 ENERGY_WEIGHT = 0.25
 ACOUSTIC_WEIGHT = 0.15
 
+# Diversity penalty: applied at ranking time (not to the base score) so a
+# song's raw fit to the user never changes, only its competitiveness once its
+# artist already has a slot in the results. Only artist is penalized, not
+# genre: penalizing repeat genre would fight the user's own genre preference,
+# since matching genre is the whole point of that part of the score.
+DIVERSITY_ARTIST_PENALTY = 0.15
+
 
 @dataclass
 class Song:
@@ -68,11 +75,30 @@ class Recommender:
 
         return round(total, 4), reasons
 
-    def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        """Return the top-k songs for a user profile, sorted by score descending."""
-        scored = [(song, self._score(user, song)) for song in self.songs]
-        scored.sort(key=lambda pair: pair[1][0], reverse=True)
-        return [song for song, _ in scored[:k]]
+    def recommend(self, user: UserProfile, k: int = 5, diversify: bool = True) -> List[Song]:
+        """Return the top-k songs, greedily re-ranked to penalize repeat artists."""
+        candidates = sorted(
+            ((song, self._score(user, song)[0]) for song in self.songs),
+            key=lambda pair: pair[1],
+            reverse=True,
+        )
+        if not diversify:
+            return [song for song, _ in candidates[:k]]
+
+        selected: List[Song] = []
+        seen_artists = set()
+        remaining = list(candidates)
+        while remaining and len(selected) < k:
+            best_song, best_adjusted = None, None
+            for song, base_score in remaining:
+                penalty = DIVERSITY_ARTIST_PENALTY if song.artist in seen_artists else 0.0
+                adjusted = base_score - penalty
+                if best_adjusted is None or adjusted > best_adjusted:
+                    best_song, best_adjusted = song, adjusted
+            remaining = [(s, sc) for s, sc in remaining if s is not best_song]
+            selected.append(best_song)
+            seen_artists.add(best_song.artist)
+        return selected
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
         """Return a human-readable explanation for why a song scored as it did."""
@@ -134,12 +160,42 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     return round(total, 4), reasons
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
-    """Score every song, sort by score descending, and return the top k."""
-    scored = []
+def recommend_songs(
+    user_prefs: Dict, songs: List[Dict], k: int = 5, diversify: bool = True
+) -> List[Tuple[Dict, float, str]]:
+    """Score every song, then greedily pick the top k, penalizing repeat artists."""
+    candidates = []
     for song in songs:
         score, reasons = score_song(user_prefs, song)
-        scored.append((song, score, "; ".join(reasons)))
+        candidates.append({"song": song, "score": score, "reasons": reasons})
+    candidates.sort(key=lambda c: c["score"], reverse=True)
 
-    scored.sort(key=lambda item: item[1], reverse=True)
-    return scored[:k]
+    if not diversify:
+        return [(c["song"], c["score"], "; ".join(c["reasons"])) for c in candidates[:k]]
+
+    selected = []
+    seen_artists = set()
+    remaining = list(candidates)
+    while remaining and len(selected) < k:
+        best, best_adjusted, best_penalty_notes = None, None, []
+        for c in remaining:
+            if c["song"]["artist"] in seen_artists:
+                penalty = DIVERSITY_ARTIST_PENALTY
+                notes = [f"-{DIVERSITY_ARTIST_PENALTY} repeat artist"]
+            else:
+                penalty = 0.0
+                notes = []
+            adjusted = round(c["score"] - penalty, 4)
+            if best_adjusted is None or adjusted > best_adjusted:
+                best, best_adjusted, best_penalty_notes = c, adjusted, notes
+        remaining = [c for c in remaining if c is not best]
+        selected.append((best, best_adjusted, best_penalty_notes))
+        seen_artists.add(best["song"]["artist"])
+
+    results = []
+    for c, adjusted, penalty_notes in selected:
+        reasons = list(c["reasons"])
+        if penalty_notes:
+            reasons.append(f"diversity penalty applied ({'; '.join(penalty_notes)})")
+        results.append((c["song"], adjusted, "; ".join(reasons)))
+    return results

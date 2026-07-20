@@ -246,10 +246,12 @@ trade-off the weights encode.
   mismatch.
 - Grow the catalog and balance it across genres so low-representation genres
   (folk, ambient) get a real ranking instead of a default.
-- Add a diversity/de-duplication step to the ranking rule so the top-k isn't
-  dominated by near-identical songs from the same artist (e.g. LoRoom has two lofi
-  tracks, "Midnight Coding" and "Focus Flow," that could both crowd out other
-  artists in a lofi-favoring profile).
+- ~~Add a diversity/de-duplication step to the ranking rule so the top-k isn't
+  dominated by near-identical songs from the same artist~~ — **done**: both
+  `recommend_songs()` and `Recommender.recommend()` now apply a `-0.15` repeat-artist
+  penalty during ranking (see README "Bonus: Diversity Penalty"). A natural next
+  step would be a smarter penalty that scales with how many songs are already picked
+  from that artist, instead of one flat number regardless of the repeat count.
 - Let the model take feedback (skip/like) and adjust future scores, moving from a
   static formula toward something that actually learns per-user.
 
