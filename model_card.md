@@ -48,6 +48,18 @@ preference"). This is the starter project's intended design — I implemented th
 scoring/ranking logic and explanation generator, which were left as TODOs, and
 expanded the catalog from 10 to 20 songs.
 
+**Diversity/fairness step:** picking the top-k isn't just "take the 5 highest
+scores" anymore. Songs are chosen one at a time, and after a song is picked, any
+remaining song by that same artist gets a small penalty (0.15) before the next pick
+is made. Without this, a catalog where one artist happens to have several
+well-matching songs would let that one artist quietly take over someone's entire
+recommendation list — a small-scale version of the "filter bubble" problem, where a
+system keeps showing more of the same thing just because it scored well once. The
+penalty gives other, slightly-lower-scoring artists a real chance to appear instead
+of being crowded out, without changing how any individual song is judged. Genre is
+deliberately left unpenalized, since discouraging genre repetition would work
+against the user's own stated genre preference rather than improving fairness.
+
 ---
 
 ## 4. Data
