@@ -17,6 +17,7 @@ PROFILES = {
 
 def main() -> None:
     songs = load_songs("data/songs.csv")
+    print(f"Loaded songs: {len(songs)}\n")
 
     for profile_name, user_prefs in PROFILES.items():
         print(f"=== {profile_name} ===")
