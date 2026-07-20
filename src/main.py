@@ -1,32 +1,33 @@
 """
 Command line runner for the Music Recommender Simulation.
 
-This file helps you quickly run and test your recommender.
-
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
+Runs the recommender for three distinct user profiles so their outputs
+can be compared side by side.
 """
 
-from recommender import load_songs, recommend_songs
+from src.recommender import load_songs, recommend_songs
+
+
+PROFILES = {
+    "Hip-Hop Fan": {"genre": "hip-hop", "mood": "confident", "energy": 0.75, "likes_acoustic": False},
+    "Acoustic / Low-Energy Listener": {"genre": "acoustic", "mood": "calm", "energy": 0.2, "likes_acoustic": True},
+    "High-Tempo EDM Listener": {"genre": "edm", "mood": "energetic", "energy": 0.95, "likes_acoustic": False},
+}
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
+    songs = load_songs("data/songs.csv")
 
-    # Starter example profile
-    user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+    for profile_name, user_prefs in PROFILES.items():
+        print(f"=== {profile_name} ===")
+        print(f"Preferences: {user_prefs}\n")
 
-    recommendations = recommend_songs(user_prefs, songs, k=5)
-
-    print("\nTop recommendations:\n")
-    for rec in recommendations:
-        # You decide the structure of each returned item.
-        # A common pattern is: (song, score, explanation)
-        song, score, explanation = rec
-        print(f"{song['title']} - Score: {score:.2f}")
-        print(f"Because: {explanation}")
+        recommendations = recommend_songs(user_prefs, songs, k=3)
+        for rec in recommendations:
+            song, score, explanation = rec
+            print(f"{song['title']} - Score: {score:.2f}")
+            print(f"Because: {explanation}")
+            print()
         print()
 
 
