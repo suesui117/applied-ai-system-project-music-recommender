@@ -55,10 +55,10 @@ pipeline:
 
 ```mermaid
 flowchart LR
-    A["Input: UserProfile\n(favorite_genre, favorite_mood,\ntarget_energy, likes_acoustic)"] --> B
-    C["Input: songs.csv\n(20 songs)"] --> B
-    B["Process: score_song()\nloop over every song,\napply weighted recipe\n(genre 35% + mood 25% +\nenergy 25% + acoustic 15%)"] --> D
-    D["Output: sort by score desc,\ntake top k"] --> E["Ranked recommendations\n+ explanation per song"]
+    A[User Prefs: genre, mood, energy, acoustic] --> P[Score every song in songs.csv]
+    B[songs.csv: 20 songs] --> P
+    P --> R[Sort all scores descending]
+    R --> K[Top-k recommendations plus explanation]
 ```
 
 **Expected bias (before evaluating results):** weighting genre highest (35%) means
