@@ -9,3 +9,13 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Golden Hour Hustle,MC Lowkey,hip-hop,confident,0.78,95,0.70,0.85,0.15
+12,Corner Store Anthem,Dre Static,hip-hop,confident,0.72,90,0.68,0.80,0.20
+13,Basement Cypher,Q the Verse,hip-hop,chill,0.55,84,0.50,0.70,0.30
+14,Voltage Youth,Kilowatt,edm,energetic,0.95,130,0.60,0.90,0.05
+15,Pulse Overdrive,Ferric Wave,edm,energetic,0.92,132,0.55,0.88,0.05
+16,Neon Static,Rift City,edm,energetic,0.90,128,0.58,0.86,0.08
+17,Porchlight Sessions,Willow and Bone,acoustic,calm,0.20,68,0.40,0.30,0.90
+18,Quiet Fields,Sable Rivers,folk,calm,0.15,62,0.35,0.25,0.95
+19,Paper Boats,June Halloway,acoustic,sad,0.25,70,0.30,0.35,0.88
+20,Bare Wire,Isla Vance,acoustic,sad,0.18,60,0.28,0.28,0.93
