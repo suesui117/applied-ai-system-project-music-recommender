@@ -51,6 +51,16 @@ pipeline:
   close.
 - Songs are ranked by sorting all scores descending and taking the top `k`.
 
+**Data flow (planning sketch):**
+
+```mermaid
+flowchart LR
+    A["Input: UserProfile\n(favorite_genre, favorite_mood,\ntarget_energy, likes_acoustic)"] --> B
+    C["Input: songs.csv\n(20 songs)"] --> B
+    B["Process: score_song()\nloop over every song,\napply weighted recipe\n(genre 35% + mood 25% +\nenergy 25% + acoustic 15%)"] --> D
+    D["Output: sort by score desc,\ntake top k"] --> E["Ranked recommendations\n+ explanation per song"]
+```
+
 **Expected bias (before evaluating results):** weighting genre highest (35%) means
 this recipe will likely over-prioritize genre over mood — a song in the right genre
 but wrong mood should still usually outrank a song in the wrong genre but right mood.
