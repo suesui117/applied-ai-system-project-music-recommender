@@ -17,17 +17,36 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+**How real recommenders work:** Platforms like Spotify and YouTube mainly combine two
+approaches. **Collaborative filtering** looks at behavior across many users — if
+listeners who liked the same songs you did also liked song X, X gets recommended to
+you, even if the system knows nothing about X's actual sound. **Content-based
+filtering** (what this project simulates) instead looks at the attributes of the item
+itself — genre, mood, tempo, energy — and matches those attributes against a profile
+of what one user prefers. Real systems blend both, plus signals like skips, replays,
+and playlist co-occurrence, but the core idea in each case is the same three-part
+pipeline:
 
-Some prompts to answer:
+- **Input data**: raw attributes of each song (genre, mood, energy, tempo, valence,
+  danceability, acousticness) — a fixed, unopinionated description of the item.
+- **User preferences**: a taste profile (favorite genre/mood, target energy, whether
+  the user likes acoustic sound) — this is what makes recommendations personal.
+- **Ranking/selection**: a scoring function combines input data + preferences into a
+  single number per song, and the top-scoring songs are selected and shown — this is
+  the step that actually turns data into a decision.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+**This system's design:**
 
-You can include a simple diagram or bullet list if helpful.
+- Each `Song` uses: `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`,
+  `acousticness`.
+- Each `UserProfile` stores: `favorite_genre`, `favorite_mood`, `target_energy`,
+  `likes_acoustic`.
+- The `Recommender` scores each song with a weighted sum: genre match (35%) + mood
+  match (25%) + energy closeness (25%) + acoustic fit (15%). Genre/mood are exact
+  matches (1.0 or 0.0); energy and acoustic fit are closeness scores
+  (`1 - abs(difference)`) so a song doesn't need to be identical to score well, just
+  close.
+- Songs are ranked by sorting all scores descending and taking the top `k`.
 
 ---
 
